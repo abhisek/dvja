@@ -1,8 +1,5 @@
 name: Snyk Vulnerability Scanner
 
-# Scan all push and PR
-#on: [push, pull_request]
-
 on:
   push:
     branches: [ master ]
@@ -10,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  dependency_scan:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -22,8 +19,12 @@ jobs:
     - run: snyk auth ${{ secrets.SNYK_API_TOKEN }}
     - if: ${{ github.event_name == 'push' }}
       run: |
-        snyk monitor --org=${{ secrets.SNYK_ORG_ID }} \
-        --project-name=${{ secrets.SNYK_PROJECT_NAME }}
+        [ -z "$SNYK_PROJECT_NAME" ] && SNYK_PROJECT_NAME=$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}')
+        snyk monitor --org=$SNYK_ORG_ID \
+        --project-name=$SNYK_PROJECT_NAME
+      env:
+        SNYK_ORG_ID: ${{ secrets.SNYK_ORG_ID }}
+        SNYK_PROJECT_NAME: ${{ secrets.SNYK_PROJECT_NAME }}
     - run: |
         snyk test --json-file-output=/tmp/snyk-test.json \
         -p --severity-threshold=high
