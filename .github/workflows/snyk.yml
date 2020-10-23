@@ -2,7 +2,7 @@ name: Snyk Vulnerability Scanner
 
 on:
   push:
-    branches: [ master ]
+    branches: [ * ]
   pull_request:
     branches: [ master ]
 
@@ -16,6 +16,7 @@ jobs:
       with:
         node-version: 10.x
     - run: npm install -g snyk
+    - run: git config --list
     - run: snyk auth ${{ secrets.SNYK_API_TOKEN }}
     - if: ${{ github.event_name == 'push' }}
       run: |
