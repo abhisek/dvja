@@ -20,7 +20,7 @@ jobs:
     - run: npm install -g snyk
     - run: git config --list
     - run: snyk auth ${{ secrets.SNYK_API_TOKEN }}
-    - if: ${{ github.event_name == 'push' }}
+    - if: ${{ github.event_name == 'push' && github.ref == 'master' }}
       run: |
         [ -z "$SNYK_PROJECT_NAME" ] && SNYK_PROJECT_NAME=$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}')
         snyk monitor --org=$SNYK_ORG_ID \
